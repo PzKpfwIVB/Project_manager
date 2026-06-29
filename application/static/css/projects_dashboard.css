@@ -1,0 +1,92 @@
+@import url("./buttons.css");
+
+.page-title {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+}
+
+.toolbar {
+  margin-bottom: 16px;
+}
+
+.table-wrap {
+  padding: 14px;
+}
+
+.projects-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+}
+
+.projects-table thead th {
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: #fafafa;
+}
+
+.projects-table tbody td {
+  padding: 12px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.projects-table tbody tr:hover td {
+  background: #fcfcff;
+}
+
+.cell-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.actions-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.inline-form {
+  display: inline;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+}
+
+.pill-owner {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.pill-contributor {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.project-name {
+  font-weight: 800;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.empty-state {
+  padding: 18px;
+}

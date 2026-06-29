@@ -2,23 +2,26 @@ from abc import ABC, abstractmethod
 import datetime as dt
 from datetime import datetime, timedelta
 from hashlib import sha1
+from typing import Annotated
 import uuid
 
 import jwt
 
 from fastapi import Depends, HTTPException, status
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 
+from application.core.config import SECRET_KEY
 from application.db.base import (
     get_user_by_username,
     post_active_user,
     delete_active_user,
-    is_token_revoked,
-    User
+    is_token_revoked
 )
+from application.schemas.user import User
 
-SECRET_KEY = '42b0b3df187f20e2d4bc88b530eb2df58b1a3a75d65a7c451f0a9b014dadfb7c'
+
 ENCRYPTION_ALGORITHM = 'HS256'
 
 
@@ -66,7 +69,7 @@ def authenticate_user(username: str, password: str):
 
 def create_access_token(user: User, t_delta: timedelta = timedelta(minutes=60)):
     """
-    Creates a JWT access token that's valid for an hour (by default) and add
+    Creates a JWT access token that's valid for an hour (by default) and adds
     the user to the active user's list.
     """
 
@@ -87,7 +90,9 @@ def create_access_token(user: User, t_delta: timedelta = timedelta(minutes=60)):
     return encoded_jwt
 
 
-async def auth_required(token: str = Depends(oauth2_scheme)) -> User:
+async def auth_required(
+        token: Annotated[str, Depends(oauth2_scheme)]
+) -> User | RedirectResponse:
     """ Authorizes the user and returns a `User` object. """
 
     credential_exception = HTTPException(

@@ -1,0 +1,103 @@
+{% extends "projects/base.html" %}
+
+{% block title %}Projects dashboard{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', path='css/projects_dashboard.css') }}">
+{% endblock %}
+
+{% block projects %}
+<h2 class="page-title">{{ username }}'s projects</h2>
+
+<div class="toolbar">
+  <form action="{{ url_for('projects') }}" method="post" class="card">
+    <button type="submit" class="btn btn-primary">Create new project</button>
+  </form>
+</div>
+
+{% if projects %}
+  <div class="table-wrap card">
+    <table class="projects-table">
+      <thead>
+        <tr>
+          <th class="col-name">Name</th>
+          <th class="col-description">Description</th>
+          <th class="col-role">Role</th>
+          <th class="col-created">Created</th>
+          <th class="col-docs">
+            Documents
+          </th>
+          <th class="col-participants">
+            Participants
+          </th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for project_info in projects %}
+        <tr>
+          <td class="col-name">
+            <div class="cell-main">
+              <span class="project-name">{{ project_info['name'] }}</span>
+            </div>
+          </td>
+
+          <td class="col-description">
+            {{ project_info['description'] }}
+          </td>
+
+          <td class="col-role">
+            <span class="pill {{ 'pill-owner' if project_info['is_owner'] else 'pill-contributor' }}">
+              {{ "Owner" if project_info['is_owner'] else "Contributor" }}
+            </span>
+          </td>
+
+          <td class="col-created">{{ project_info['created_at'] }}</td>
+
+          <td class="col-docs">
+            <div class="cell-inline">
+              <span class="muted">{{ project_info['documents_count'] }} </span>
+              <a class="btn btn-ghost btn-small"
+                 href="{{ url_for('project_documents', project_id=project_info['project_id']) }}">
+                Manage docs
+              </a>
+            </div>
+          </td>
+
+          <td class="col-participants">
+            <div class="cell-inline">
+              <span class="muted">{{ project_info['participants_count'] }} </span>
+              <a class="btn btn-ghost btn-small"
+                 href="{{ url_for('project_participants', project_id=project_info['project_id']) }}">
+                View
+              </a>
+            </div>
+          </td>
+
+          <td class="col-actions">
+            {% if project_info['is_owner'] %}
+              <div class="actions-inline">
+                <a class="btn btn-secondary btn-small"
+                   href="{{ url_for('project_editor', project_id=project_info['project_id']) }}">
+                  Edit
+                </a>
+
+                <form action="{{ url_for('projects', project_id=project_info['project_id']) }}" method="post" class="inline-form"
+                      onsubmit="return confirm('Delete this project and all its documents?');">
+                  <input type="hidden" name="_method" value="delete">
+                  <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                </form>
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="card empty-state">
+    <p>You own no projects and are not invited to any either.</p>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,21 @@
+:root {
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+
+  --primary: #2563eb;
+  --primary-700: #1d4ed8;
+
+  --danger: #dc2626;
+  --danger-700: #b91c1c;
+
+  --secondary: #374151;
+  --secondary-700: #111827;
+
+  --ghost: transparent;
+  --shadow: 0 10px 25px rgba(0,0,0,0.06);
+
+  --radius: 12px;
+}

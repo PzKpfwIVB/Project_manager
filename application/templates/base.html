@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}TaskManager{% endblock %}</title>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <main>
+        {% block content %}
+        <!-- Page-specific content goes here -->
+        {% endblock %}
+    </main>
+    <footer>
+        <p>{% block footer %}© 2026 Task manager project{% endblock %}</p>
+    </footer>
+</body>
+</html>

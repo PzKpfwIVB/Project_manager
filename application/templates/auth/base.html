@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Authentication{% endblock %}
+
+{% block head %}{% endblock %}
+{% block content %}
+
+<div>
+    {% if message['content'] %}
+        <p style="color: {% if message['is_error'] %}red{% else %}green{% endif %}">
+          {{ message['content'] }}
+        </p>
+    {% endif %}
+    {% block form %}
+    <!-- Page-specific content goes here -->
+    {% endblock %}
+</div>
+{% endblock %}

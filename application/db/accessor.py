@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-import datetime as dt
-from typing import ClassVar
 
-from pydantic import BaseModel
+from application.schemas.token_data import TokenDataDb
+from application.schemas.user import User
 
 
 class DatabaseConnectionInterface(ABC):
@@ -11,34 +10,6 @@ class DatabaseConnectionInterface(ABC):
         self.user_db = ...
         self.active_users = ...
         self.revoked_tokens = ...
-
-
-class TokenDataInterface(ABC):
-    username: ClassVar[str | None]
-    expire: ClassVar[dt.datetime | None]
-    id: ClassVar[str | None]
-
-
-class TokenDataDb(BaseModel):
-    username: str | None = None
-    expire: dt.datetime | None = None
-    id: str | None = None
-
-    @classmethod
-    def from_obj(cls, obj: TokenDataInterface):
-        return cls(
-            username=obj.username,
-            expire=obj.expire,
-            id=obj.id
-        )
-
-
-class User(BaseModel):
-    username: str
-    hashed_password: str | None = None
-    email: str | None = None
-    full_name: str | None = None
-    token_data: TokenDataDb | None = None
 
 
 class DummyDatabaseConnection(DatabaseConnectionInterface):

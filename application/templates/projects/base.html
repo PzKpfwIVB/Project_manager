@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', path='css/buttons.css') }}">
+{% endblock %}
+
+{% block content %}
+{% block projects %}
+
+{% endblock %}
+<div>
+    <form action="{{ url_for('logout') }}" method="post">
+        <button type="submit" class="btn btn-danger btn-small">Log out</button>
+    </form>
+</div>
+{% endblock %}
