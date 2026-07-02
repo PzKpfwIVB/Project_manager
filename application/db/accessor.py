@@ -17,7 +17,9 @@ class DummyDatabaseConnection(DatabaseConnectionInterface):
         self.user_db = {
             'Bob': {
                 'username': 'Bob',  # password: builder
-                'hashed_password': 'f52318a05e518a5596012af2ed38de68ac26a468',
+                'hashed_password': '$argon2id$v=19$m=65536,t=3,p=4$26WH59/'
+                                   'J79rflyr/zqXRPA$yU1y2lGlTqYszF1oLoWlLI'
+                                   '+HL3uSEOPJjDV/qzpYdjs',
                 'email': 'bob@webuild.com',
                 'full_name': "Robert Builder",
                 'token_data': None

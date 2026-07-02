@@ -1,9 +1,8 @@
-import json
 from typing import Annotated
 
 from pydantic import ValidationError
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
@@ -27,6 +26,19 @@ from application.utils.signup import LoginSignupMessage, SignupForm
 
 router = APIRouter(tags=['authentication'])
 templates = Jinja2Templates(directory='application/templates')
+
+
+async def auth_exception_handler(request: Request, exc: HTTPException):
+    if exc.status_code == status.HTTP_401_UNAUTHORIZED \
+            and request.url.path != '/login':
+        msg = LoginSignupMessage(
+                is_error=True,
+                content="Could not validate credentials"
+        )
+        return RedirectResponse(
+            url=f'/login?{msg.urlencoded}',
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
 
 
 class AccessTokenCreator(AccessTokenCreatorInterface):
@@ -108,15 +120,33 @@ async def login(
             status_code=status.HTTP_303_SEE_OTHER
         )
 
-    access_token_creator.create(user)
-
-    return RedirectResponse(
+    resp = RedirectResponse(
         url='/projects',
         status_code=status.HTTP_303_SEE_OTHER
     )
+    resp.set_cookie(
+        key='access_token',
+        value=access_token_creator.create(user),
+        httponly=True,
+        secure=False,
+        samesite='lax',
+        path='/'
+    )
+
+    return resp
 
 
 @router.post('/logout')
 async def logout(user: Annotated[User, Depends(auth_required)]):
     log_user_out(user.username)
-    return {'message': "Successfully logged out"}
+    msg = LoginSignupMessage(
+        is_error=False,
+        content="Successfully logged out"
+    )
+    resp = RedirectResponse(
+        url=f'/login?{msg.urlencoded}',
+        status_code=status.HTTP_303_SEE_OTHER
+    )
+    resp.delete_cookie('access_token', path='/')
+
+    return resp

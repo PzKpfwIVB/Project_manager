@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 import datetime as dt
 from datetime import datetime, timedelta
-from hashlib import sha1
 from typing import Annotated
 import uuid
 
 import jwt
+from pwdlib import PasswordHash
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Cookie, HTTPException, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
@@ -23,6 +23,11 @@ from application.schemas.user import User
 
 
 ENCRYPTION_ALGORITHM = 'HS256'
+
+password_hash = PasswordHash.recommended()
+DUMMY_HASH = password_hash.hash('dummy_password')
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/login')
 
 
 class AccessTokenCreatorInterface(ABC):
@@ -52,7 +57,8 @@ class TokenData(BaseModel):
         )
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/login')
+def verify_password(plain_password: str, stored_hash: str):
+    return password_hash.verify(plain_password, stored_hash)
 
 
 def authenticate_user(username: str, password: str):
@@ -60,8 +66,9 @@ def authenticate_user(username: str, password: str):
 
     user = get_user_by_username(username)
     if user is None:
+        verify_password(password, DUMMY_HASH)  # Against timing attacks
         return None
-    elif sha1(password.encode()).hexdigest() != user.hashed_password:
+    elif not verify_password(password, user.hashed_password):
         return None
 
     return user
@@ -82,7 +89,8 @@ def create_access_token(user: User, t_delta: timedelta = timedelta(minutes=60)):
     encoded_jwt = jwt.encode(
         payload=to_encode,
         key=SECRET_KEY,
-        algorithm=ENCRYPTION_ALGORITHM)
+        algorithm=ENCRYPTION_ALGORITHM
+    )
 
     user.token_data = TokenData.from_dict(to_encode)
     post_active_user(user)
@@ -91,7 +99,7 @@ def create_access_token(user: User, t_delta: timedelta = timedelta(minutes=60)):
 
 
 async def auth_required(
-        token: Annotated[str, Depends(oauth2_scheme)]
+        token: Annotated[str | None, Cookie(alias='access_token')] = None
 ) -> User | RedirectResponse:
     """ Authorizes the user and returns a `User` object. """
 
@@ -101,12 +109,14 @@ async def auth_required(
         headers={'www-authenticate': 'Bearer'}
     )
 
+    decoding_params = {
+        'jwt': token,
+        'key': SECRET_KEY,
+        'algorithms': [ENCRYPTION_ALGORITHM]
+    }
+
     try:
-        payload = jwt.decode(
-            jwt=token,
-            key=SECRET_KEY,
-            algorithms=[ENCRYPTION_ALGORITHM]
-        )
+        payload = jwt.decode(**decoding_params)
         username: str = payload.get('sub')
         if username is None:
             raise credential_exception
@@ -115,6 +125,8 @@ async def auth_required(
     except jwt.exceptions.ExpiredSignatureError:
         credential_exception.detail = "Token expired"
 
+        payload = jwt.decode(**decoding_params, options={'verify_exp': False})
+        username: str = payload.get('sub')
         delete_active_user(username)  # Deactivate if token expired
 
         raise credential_exception

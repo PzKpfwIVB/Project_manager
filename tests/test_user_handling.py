@@ -23,7 +23,8 @@ from application.utils.override_dependencies import OverrideDependencies
 
 DEFAULT_USER = User(
     username='Bob',  # password: builder
-    hashed_password='f52318a05e518a5596012af2ed38de68ac26a468',
+    hashed_password='$argon2id$v=19$m=65536,t=3,p=4$26WH59/J79rflyr/'
+                    'zqXRPA$yU1y2lGlTqYszF1oLoWlLI+HL3uSEOPJjDV/qzpYdjs',
     email='bob@webuild.com',
     full_name="Robert Builder",
     token_data=None
@@ -52,7 +53,7 @@ class AccessTokenCreatorMock(AccessTokenCreatorInterface):
         self._creator_func = creator_func
 
     def create(self, user: User) -> str:
-        return self._creator_func(user, t_delta=timedelta(seconds=0))
+        return self._creator_func(user, t_delta=timedelta(minutes=0))
 
 
 class OAuth2PasswordRequestFormMock:
@@ -158,7 +159,7 @@ class TestLogInOut:
                 "username": "Bob",
                 "password": "builder"
             }
-            _ = client.post("/login", json=payload)
+            _ = client.post('/login', json=payload)
             token_id = DB_ACCESSOR.active_users['Bob'].token_data.id
 
             response = client.post('/logout')
@@ -181,7 +182,7 @@ class TestAuthenticatedEndpoint:
                 "username": "Bob",
                 "password": "builder"
             }
-            _ = client.post("/login", json=payload)
+            _ = client.post('/login', json=payload)
 
             response = client.get('/auth-me')
 
@@ -198,8 +199,13 @@ class TestAuthenticatedEndpoint:
                 "username": "Bob",
                 "password": "builder"
             }
-            _ = client.post("/login", json=payload)
+            _ = client.post('/login', json=payload)
+            DB_ACCESSOR.active_users.update(
+                {DEFAULT_USER.username: DEFAULT_USER}
+            )
 
             response = client.get('/auth-me')
 
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        exp_query = b'message_data=%7B%22is_error%22%3A+true%2C+%22' \
+                    b'content%22%3A+%22Could+not+validate+credentials%22%7D'
+        assert response.url.query == exp_query

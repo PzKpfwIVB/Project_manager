@@ -25,7 +25,7 @@ from application.schemas.user import User
 from application.utils.signup import LoginSignupMessage, SignupForm
 
 
-router = APIRouter(tags=['projects'])
+router = APIRouter(tags=['projects'], dependencies=[Depends(auth_required)])
 templates = Jinja2Templates(directory='application/templates')
 
 
