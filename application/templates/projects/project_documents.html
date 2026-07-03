@@ -1,0 +1,82 @@
+{% extends "projects/base.html" %}
+
+{% block title %}Projects dashboard{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', path='css/projects.css') }}">
+{% endblock %}
+
+{% block projects %}
+<h2 class="page-title">Documents of the {{ project['name'] }} project</h2>
+
+<div class="toolbar">
+  <form action="{{ url_for('project_documents', project_id=project['project_id']) }}" method="post" enctype="multipart/form-data">
+    <input type="file" id="file" name="file" required hidden>
+
+    <label for="file" class="btn btn-secondary btn-small" title="Upload a document or image file">
+      Browse
+    </label>
+
+    <button type="submit" class="btn btn-file-handler btn-small" title="Upload a document or image file">
+      Upload
+    </button>
+  </form>
+</div>
+
+{% if project['documents'] %}
+  <div class="table-wrap card">
+    <table class="projects-table">
+      <thead>
+        <tr>
+          <th class="col-name">Name</th>
+          <th class="col-size">Size</th>
+          <th class="col-uploaded-by">Uploaded by</th>
+          <th class="col-created">Created</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for document in project['documents'] %}
+        <tr>
+          <td class="col-name">
+            <div class="cell-main">
+              <span class="file-name">{{ document['name'] }}</span>
+            </div>
+          </td>
+
+          <td class="col-size">
+            {{ document['size_bytes'] }} B
+          </td>
+
+          <td class="col-uploaded-by">{{ document['uploaded_by']['username'] }}</td>
+          <td class="col-created">{{ document['created_at'] }}</td>
+
+          <td class="col-actions">
+            <div class="actions-inline">
+              <a class="btn btn-ghost btn-small" href="{{ url_for('download_project_document', project_id=project['project_id'], document_name=document['name']) }}">
+                Download
+              </a>
+
+              <form action="{{ url_for('projects', project_id=project['project_id']) }}" method="post" class="inline-form"
+                    onsubmit="return confirm('Delete this file from the project?');">
+                <input type="hidden" name="_method" value="delete">
+                <button type="submit" class="btn btn-danger btn-small">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="card empty-state">
+    <p>There are no documents associated with this project.</p>
+  </div>
+{% endif %}
+<form action="{{ url_for('get_projects_dashboard') }}" method="get">
+  <div style="margin-top: 12px;">
+    <button type="submit" class="btn btn-ghost btn-small">Return to the dashboard</button>
+  </div>
+</form>
+{% endblock %}

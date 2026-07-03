@@ -1,14 +1,14 @@
 {% extends "auth/base.html" %}
 
 {% block head %}
-  <link rel="stylesheet" href="{{ url_for('static', path='css/auth.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/input.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', path='css/buttons.css') }}">
 {% endblock %}
 
 {% block form %}
 
 <form action="{{ url_for('login') }}" method="post">
-    <div class="auth-form card">
+    <div class="input-form card">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
 

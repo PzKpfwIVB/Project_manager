@@ -18,10 +18,11 @@ from application.db.base import (
     log_user_out,
     sign_user_up
 )
+from application.schemas.redirect_context_message import RedirectContextMessage
 from application.schemas.signup_info import SignupInfo
 from application.schemas.token import Token
 from application.schemas.user import User
-from application.utils.signup import LoginSignupMessage, SignupForm
+from application.utils.signup import SignupForm
 
 
 router = APIRouter(tags=['authentication'])
@@ -31,7 +32,7 @@ templates = Jinja2Templates(directory='application/templates')
 async def auth_exception_handler(request: Request, exc: HTTPException):
     if exc.status_code == status.HTTP_401_UNAUTHORIZED \
             and request.url.path != '/login':
-        msg = LoginSignupMessage(
+        msg = RedirectContextMessage(
                 is_error=True,
                 content="Could not validate credentials"
         )
@@ -50,9 +51,7 @@ class AccessTokenCreator(AccessTokenCreatorInterface):
 
 
 @router.get('/auth', response_class=HTMLResponse)
-async def auth(request: Request, message_data: str | None = None):
-    message = LoginSignupMessage.deserialize(message_data)
-
+async def auth(request: Request, message: RedirectContextMessage = Depends()):
     return templates.TemplateResponse(
         request=request,
         name='auth/signup.html',
@@ -62,7 +61,7 @@ async def auth(request: Request, message_data: str | None = None):
 
 @router.post('/auth', response_class=RedirectResponse)
 async def sign_up(form_data: Annotated[SignupForm, Depends()]):
-    msg = LoginSignupMessage(is_error=True, content="")
+    msg = RedirectContextMessage(is_error=True, content="")
 
     try:
         signup_info = SignupInfo(
@@ -93,8 +92,10 @@ async def sign_up(form_data: Annotated[SignupForm, Depends()]):
 
 
 @router.get('/login', response_class=HTMLResponse)
-async def get_login_page(request: Request, message_data: str | None = None):
-    message = LoginSignupMessage.deserialize(message_data)
+async def get_login_page(
+        request: Request,
+        message: RedirectContextMessage = Depends()
+):
     return templates.TemplateResponse(
         request=request,
         name='auth/login.html',
@@ -111,7 +112,7 @@ async def login(
 ):
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
-        msg = LoginSignupMessage(
+        msg = RedirectContextMessage(
             is_error=True,
             content="Invalid username or password"
         )
@@ -139,7 +140,7 @@ async def login(
 @router.post('/logout')
 async def logout(user: Annotated[User, Depends(auth_required)]):
     log_user_out(user.username)
-    msg = LoginSignupMessage(
+    msg = RedirectContextMessage(
         is_error=False,
         content="Successfully logged out"
     )

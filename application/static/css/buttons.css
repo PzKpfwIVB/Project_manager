@@ -44,6 +44,12 @@
 }
 .btn-danger:hover { background: var(--danger-700); }
 
+.btn-file-handler {
+  background: var(--file-handler);
+  color: #fff;
+}
+.btn-file-handler:hover { background: var(--file-handler-700); }
+
 .btn-ghost {
   background: var(--ghost);
   color: var(--text);

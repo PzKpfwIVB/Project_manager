@@ -1,13 +1,13 @@
-.auth-form {
+.input-form {
   display: grid;
   grid-template-columns: 120px 1fr;
   row-gap: 12px;
   column-gap: 12px;
   align-items: center;
 }
-.auth-form label { justify-self: end; }
+.input-form label { justify-self: end; }
 
-.auth-form input{
+.input-form input{
   max-width: 400px;
   width: 100%;
 }

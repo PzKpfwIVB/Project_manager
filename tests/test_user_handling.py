@@ -96,8 +96,7 @@ class TestSignup:
         _ = client.post('/auth', data=payload)
         response = client.post('/auth', data=payload)
 
-        exp_query = b'message_data=%7B%22is_error%22%3A+true%2C+%22'\
-                    b'content%22%3A+%22Username+already+taken%22%7D'
+        exp_query = b'is_error=True&content=Username+already+taken'
         assert response.url.query == exp_query
 
 
@@ -206,6 +205,5 @@ class TestAuthenticatedEndpoint:
 
             response = client.get('/auth-me')
 
-        exp_query = b'message_data=%7B%22is_error%22%3A+true%2C+%22' \
-                    b'content%22%3A+%22Could+not+validate+credentials%22%7D'
+        exp_query = b'is_error=True&content=Could+not+validate+credentials'
         assert response.url.query == exp_query

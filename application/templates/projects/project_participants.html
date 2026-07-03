@@ -1,0 +1,99 @@
+{% extends "projects/base.html" %}
+
+{% block title %}Projects dashboard{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', path='css/projects.css') }}">
+{% endblock %}
+
+{% block projects %}
+<h2 class="page-title">Participants of the {{ project['name'] }} project</h2>
+
+<div>
+  {% if message['content'] %}
+    <p style="color: {% if message['is_error'] %}red{% else %}green{% endif %}">
+      {{ message['content'] }}
+    </p>
+  {% endif %}
+</div>
+
+<div class="toolbar">
+  <form action="{{ url_for('project_invite_participant', project_id=project['project_id']) }}" method="post" style="display:flex; gap:12px; align-items:center;">
+    <label for="user">Invite participant</label>
+
+    <input
+      id="user"
+      name="user"
+      list="invitee-options"
+      placeholder="Start typing..."
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+    >
+
+    <datalist id="invitee-options">
+      {% for u in users %}
+        {% if u not in project['participants'] %}
+          <option value="{{ u['username'] }}"></option>
+        {% endif %}
+      {% endfor %}
+    </datalist>
+
+    <button type="submit" class="btn btn-primary btn-small">Invite</button>
+  </form>
+
+  <script>
+    window.addEventListener("pageshow", () => {
+      const el = document.getElementById("user");
+      if (el) el.value = "";
+    });
+  </script>
+</div>
+
+<div class="table-wrap card">
+  <table class="projects-table">
+    <thead>
+      <tr>
+        <th class="col-name">Name</th>
+        <th class="col-role">Role</th>
+        <th class="col-actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for participant in project['participants'] %}
+      <tr>
+        <td class="col-name">
+          <div class="cell-main">
+            <span class="project-name">{{ participant['username'] }}</span>
+          </div>
+        </td>
+
+        <td class="col-role">
+          <span class="pill {{ 'pill-owner' if participant['username'] == project['owner']['username'] else 'pill-contributor' }}">
+            {{ "Owner" if participant['username'] == project['owner']['username'] else "Contributor" }}
+          </span>
+        </td>
+
+        <td class="col-actions">
+          {% if current_user['username'] == project['owner']['username'] and participant['username'] != project['owner']['username'] %}
+            <div class="actions-inline">
+              <form action="{{ url_for('project_remove_participant', project_id=project['project_id']) }}" method="post" class="inline-form"
+                    onsubmit="return confirm('Remove this person from the project?');">
+                <input type="hidden" name="username" value="{{ participant['username'] }}">
+                <button type="submit" class="btn btn-danger btn-small">Remove</button>
+              </form>
+            </div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<form action="{{ url_for('get_projects_dashboard') }}" method="get">
+  <div style="margin-top: 12px;">
+    <button type="submit" class="btn btn-ghost btn-small">Return to the dashboard</button>
+  </div>
+</form>
+{% endblock %}
