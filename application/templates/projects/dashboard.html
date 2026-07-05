@@ -56,13 +56,13 @@
             </span>
           </td>
 
-          <td class="col-created">{{ project_info['created_at'] }}</td>
+          <td class="col-created">{{ project_info['created_at'].strftime('%Y/%m/%d %H:%M:%S') }}</td>
 
           <td class="col-docs">
             <div class="cell-inline">
               <span class="muted">{{ project_info['documents_count'] }} </span>
               <a class="btn btn-ghost btn-small"
-                 href="{{ url_for('project_documents', project_id=project_info['project_id']) }}">
+                 href="{{ url_for('project_documents', project_id=project_info['id']) }}">
                 Manage docs
               </a>
             </div>
@@ -72,7 +72,7 @@
             <div class="cell-inline">
               <span class="muted">{{ project_info['participants_count'] }} </span>
               <a class="btn btn-ghost btn-small"
-                 href="{{ url_for('project_participants', project_id=project_info['project_id']) }}">
+                 href="{{ url_for('project_participants', project_id=project_info['id']) }}">
                 View
               </a>
             </div>
@@ -82,11 +82,11 @@
             {% if project_info['owner']['username'] == current_user['username'] %}
               <div class="actions-inline">
                 <a class="btn btn-secondary btn-small"
-                   href="{{ url_for('project_editor', project_id=project_info['project_id']) }}">
+                   href="{{ url_for('get_project_info_page', project_id=project_info['id']) }}">
                   Edit
                 </a>
 
-                <form action="{{ url_for('delete_project', project_id=project_info['project_id']) }}" method="post" class="inline-form"
+                <form action="{{ url_for('delete_project', project_id=project_info['id']) }}" method="post" class="inline-form"
                       onsubmit="return confirm('Delete this project and all its documents?');">
                   <input type="hidden" name="_method" value="delete">
                   <button type="submit" class="btn btn-danger btn-small">Delete</button>

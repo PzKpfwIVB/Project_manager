@@ -1,0 +1,93 @@
+{% extends "projects/base.html" %}
+
+{% block title %}Document editor{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', path='css/projects.css') }}">
+{% endblock %}
+
+{% block projects %}
+<h2 class="page-title">Modify {{ document['path'] }} of the {{ project['name'] }} project</h2>
+
+<div>
+  {% if message['content'] %}
+    <p style="color: {% if message['is_error'] %}red{% else %}green{% endif %}">
+      {{ message['content'] }}
+    </p>
+  {% endif %}
+</div>
+
+<div class="toolbar">
+  <div class="input-form card">
+    <form id="uploadForm" action="{{ url_for('modify_project_document', project_id=project['id'], document_id=document['id']) }}" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="operation" value="update">
+      <input type="file" id="file" name="file" hidden>
+
+      <label for="file" id="browseLabel" class="btn btn-secondary btn-small" title="Upload a document or image file">
+        Browse
+      </label>
+
+      <span id="fileName" style="margin-left: 8px; margin-right: 8px;"></span>
+      <button type="button" id="deselectBtn" class="btn btn-danger btn-small" style="display:none;">
+        Deselect
+      </button>
+
+      <button type="submit" id="uploadBtn" class="btn btn-file-handler btn-small" title="Upload a document or image file" disabled>
+        Update
+      </button>
+    </form>
+
+    <p style="margin-bottom: 14px;">
+
+    <form action="{{ url_for('modify_project_document', project_id=project['id'], document_id=document['id']) }}" method="post" class="inline-form" onsubmit="return confirm('Delete this file from the project?');">
+      <input type="hidden" name="operation" value="delete">
+      <button type="submit" class="btn btn-danger btn-small">Delete</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const fileInput = document.getElementById("file");
+  const uploadBtn = document.getElementById("uploadBtn");
+  const fileNameEl = document.getElementById("fileName");
+  const deselectBtn = document.getElementById("deselectBtn");
+  const browseLabel = document.getElementById("browseLabel");
+  const docIdInput = document.getElementById("docId");
+
+  function setSelected(selected) {
+    browseLabel.style.pointerEvents = selected ? "none" : "auto";
+    browseLabel.style.opacity = selected ? '0.5' : '1';
+    deselectBtn.style.display = selected ? "inline-block" : "none";
+    uploadBtn.disabled = !selected;
+    uploadBtn.style.opacity = selected ? "1" : "0.5";
+  }
+
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) {
+      fileNameEl.textContent = "";
+      setSelected(false);
+      return;
+    }
+
+    fileNameEl.textContent = file.name;
+    setSelected(true);
+  });
+
+  deselectBtn.addEventListener("click", () => {
+    fileInput.value = "";
+    fileNameEl.textContent = "";
+    setSelected(false);
+    docIdInput.value = "-1";
+  });
+
+  // Initialize in case the page is loaded with a pre-filled input
+  setSelected(!!(fileInput.files && fileInput.files[0]));
+</script>
+
+<form action="{{ url_for('project_documents', project_id=project['id']) }}" method="get">
+  <div style="margin-top: 12px;">
+    <button type="submit" class="btn btn-ghost btn-small">Return to the documents view</button>
+  </div>
+</form>
+{% endblock %}

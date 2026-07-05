@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from application.schemas.token_data import TokenDataDb
+from application.schemas.token_data import TokenData
 from application.schemas.user import User
 
 
@@ -27,7 +27,7 @@ class DummyDatabaseConnection(DatabaseConnectionInterface):
         }
 
         self.active_users: dict[str, User] = {}
-        self.revoked_tokens: [int, TokenDataDb] = {}
+        self.revoked_tokens: [int, TokenData] = {}
 
 
 class DatabaseAccessor:

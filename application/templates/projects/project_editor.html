@@ -1,6 +1,6 @@
 {% extends "projects/base.html" %}
 
-{% block title %}Projects dashboard{% endblock %}
+{% block title %}Projects editor{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{{ url_for('static', path='css/projects.css') }}">
@@ -18,7 +18,7 @@
   {% endif %}
 </div>
 
-<form action="{{ url_for('update_project_info', project_id=project['project_id']) if operation == 'update' else url_for('create_new_project') }}" method="post">
+<form action="{{ url_for('update_project_info', project_id=project['id']) if operation == 'update' else url_for('create_new_project') }}" method="post">
   <div class="toolbar">
     <div>
       <button type="submit" class="btn btn-primary btn-small">{{"Update" if operation == 'update' else "Create" }}</button>
@@ -27,10 +27,10 @@
 
   <div class="input-form card">
     <label for="name">Name:</label>
-    <input type="text" id="name" name="name" value="{{ project['name'] }}" required>
+    <input type="text" id="name" name="name" value="{{ project['name'] }}" autocomplete="off" required>
 
     <label for="description">Description:</label>
-    <input type="text" id="description" name="description" value="{{ project['description'] }}" required>
+    <input type="text" id="description" name="description" value="{{ project['description'] }}" autocomplete="off" required>
   </div>
 </form>
 

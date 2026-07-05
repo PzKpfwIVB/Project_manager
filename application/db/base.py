@@ -10,7 +10,7 @@ from application.db.accessor import (
     DummyDatabaseConnection,
 )
 from application.schemas.signup_info import SignupInfo
-from application.schemas.token_data import TokenDataDb
+from application.schemas.token_data import TokenData
 from application.schemas.user import User
 
 
@@ -92,7 +92,7 @@ def _purge_expired_tokens_from_revoked_tokens(db_accessor=DB_ACCESSOR):
 
 
 def is_token_revoked(
-        token_data: TokenDataDb | None,
+        token_data: TokenData | None,
         db_accessor=DB_ACCESSOR
 ) -> bool:
     """ Checks if an active token is revoked. """
@@ -107,7 +107,7 @@ def is_token_revoked(
 
 
 def post_revoked_token(
-        token_data: TokenDataDb,
+        token_data: TokenData,
         db_accessor=DB_ACCESSOR
 ) -> None:
     """ Adds a revoked token to the list of revoked tokens. """
