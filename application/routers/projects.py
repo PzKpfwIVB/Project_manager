@@ -101,6 +101,7 @@ async def create_new_project(
         created_at=dt.datetime.now(tz=dt.timezone.utc),
         participants=[user]
     ))
+    session.commit()
 
     msg = RedirectContextMessage(
         is_error=False,
@@ -137,6 +138,7 @@ async def update_project_info(
         project_info: ProjectInfo = Form()
 ):
     update_project_info_in_db(session, project_id, project_info)
+    session.commit()
 
     msg = RedirectContextMessage(
         is_error=False,
@@ -202,6 +204,7 @@ async def upload_document_to_project(
             created_at=dt.datetime.now(tz=dt.timezone.utc)
         )
         insert_document_into_db(session, new_doc, file)
+        session.commit()
 
     return RedirectResponse(
         url=f'/projects/{project_id}/documents?{msg.urlencoded}',
@@ -276,8 +279,10 @@ async def modify_project_document(
                 created_at=dt.datetime.now(tz=dt.timezone.utc)
             )
             update_document_in_db(session, document_id, doc, file)
+            session.commit()
     elif operation == 'delete':
         delete_document_from_db(session, document_id)
+        session.commit()
         msg.content = "Document deleted successfully"
 
     return RedirectResponse(
@@ -324,10 +329,11 @@ async def project_invite_participant(
     )
 
     user_obj = select_user_by_username(session, user)
-    if user is not None:
+    if user_obj is not None:
         participants = select_project_participants(session, project_id).user_ids
         if user_obj.id not in participants:
             invite_user_to_project(session, project_id, user_obj)
+            session.commit()
             msg = RedirectContextMessage(
                 is_error=False,
                 content=f"{user_obj.username} "

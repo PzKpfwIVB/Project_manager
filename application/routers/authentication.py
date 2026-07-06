@@ -91,8 +91,8 @@ async def sign_up(
         return RedirectResponse(url=f'/auth?{msg.urlencoded}',
                                 status_code=status.HTTP_303_SEE_OTHER)
 
-    # user = sign_user_up(signup_info)
     insert_user_into_db(session, user_signup_form)
+    session.commit()
 
     msg.is_error = False
     msg.content = "User was successfully created"

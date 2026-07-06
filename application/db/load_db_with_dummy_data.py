@@ -59,6 +59,7 @@ def initialize_users() -> None:
                 full_name="Robert Builder"
             )
         )
+        session.commit()
 
         insert_user_into_db(
             session,
@@ -69,6 +70,7 @@ def initialize_users() -> None:
                 full_name="Alice Wonderland"
             )
         )
+        session.commit()
 
         insert_user_into_db(
             session,
@@ -79,6 +81,7 @@ def initialize_users() -> None:
                 full_name="Eve Probe"
             )
         )
+        session.commit()
 
 
 def initialize_projects() -> int:
@@ -96,6 +99,7 @@ def initialize_projects() -> int:
             created_at=dt.datetime.now(tz=dt.timezone.utc),
             participants=[bob]
         ))
+        session.commit()
 
         project = insert_project_into_db(session, Project(
             name="Project 2",
@@ -104,8 +108,10 @@ def initialize_projects() -> int:
             created_at=dt.datetime.now(tz=dt.timezone.utc),
             participants=[alice]
         ))
+        session.commit()
 
         invite_user_to_project(session, project.id, bob)
+        session.commit()
 
         return project.id
 
@@ -143,6 +149,7 @@ async def initialize_files(project_id: int):
                 os.path.join(DUMMY_FILES, u_file_1.filename)
             )
             insert_document_into_db(session, document_1, u_file_1)
+            session.commit()
 
         async with LocalFileAsUploadFile(filename='default.txt') as u_file_2:
             document_2.uploaded_by_user_id = eve.id
@@ -151,6 +158,7 @@ async def initialize_files(project_id: int):
                 os.path.join(DUMMY_FILES, u_file_2.filename)
             )
             insert_document_into_db(session, document_2, u_file_2)
+            session.commit()
 
 
 async def main():

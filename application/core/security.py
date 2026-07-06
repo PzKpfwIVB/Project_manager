@@ -82,7 +82,9 @@ def create_access_token(
 
     token_data = TokenData.from_dict(to_encode)
     delete_token_from_db(session, token_data, by_username=True)
+    session.commit()
     user.token_data = insert_token_into_db(session, token_data)
+    session.commit()
 
     return encoded_jwt
 

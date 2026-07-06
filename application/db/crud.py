@@ -53,7 +53,6 @@ def insert_user_into_db(
         full_name=user_signup_form.full_name
     )
     session.add(user_orm)
-    session.commit()
 
     return User.from_orm(user_orm)
 
@@ -64,6 +63,7 @@ def log_user_out(session: Session, username: str) -> None:
     logging.info(f"Logging out user '{username}'")
     user = select_user_by_username(session, username)
     revoke_token(session, user.token_data)
+    session.commit()
 
 
 def select_user_by_username(
@@ -145,7 +145,6 @@ def insert_token_into_db(session: Session, token: TokenData) -> TokenData:
     )
 
     session.add(token_orm)
-    session.commit()
 
     _purge_expired_tokens(session)
 
@@ -173,7 +172,6 @@ def delete_token_from_db(
         )
 
     session.execute(stmt)
-    session.commit()
 
     _purge_expired_tokens(session)
 
@@ -198,7 +196,6 @@ def revoke_token(session: Session, token: TokenData) -> None:
 
     revoked_token_orm = RevokedTokenOrm(id=token.id)
     session.add(revoked_token_orm)
-    session.commit()
 
     _purge_expired_tokens(session)
 
@@ -225,7 +222,6 @@ def insert_project_into_db(session: Session, project: Project) -> Project:
         role=Role.OWNER.value
     )
     session.add(user_project_orm)
-    session.commit()
 
     os.mkdir(os.path.join(FILE_STORAGE, str(project_orm.id)))
 
@@ -272,7 +268,7 @@ def select_all_projects(session: Session) -> list[Project]:
 
     logging.info("SELECT all projects")
 
-    stmt = select(ProjectOrm).order_by(Project.id)
+    stmt = select(ProjectOrm).order_by(ProjectOrm.id)
     project_orm_list = session.execute(stmt).all()  # [(ProjectOrm,), ...]
     project_owners = select_all_project_owners(session)
 
@@ -305,7 +301,6 @@ def update_project_info_in_db(
         description=project_info.description
     )
     session.execute(stmt)
-    session.commit()
 
 
 def insert_document_into_db(
@@ -326,7 +321,7 @@ def insert_document_into_db(
         created_at=document.created_at
     )
     session.add(doc_orm)
-    session.commit()
+    session.flush()
 
     target_path = os.path.join(
         FILE_STORAGE,
@@ -372,7 +367,6 @@ def update_document_in_db(
         created_at=document.created_at
     )
     session.execute(stmt)
-    session.commit()
 
     # Remove the old file first
     project_dir = os.path.join(
@@ -404,7 +398,6 @@ def delete_document_from_db(session: Session, document_id: int) -> None:
 
     stmt = delete(DocumentOrm).where(DocumentOrm.id == document_id)
     session.execute(stmt)
-    session.commit()
 
     removal_path = os.path.join(
         FILE_STORAGE,
@@ -429,7 +422,6 @@ def invite_user_to_project(
             role=Role.CONTRIBUTOR.value
         )
     )
-    session.commit()
 
 
 def remove_user_from_project(
