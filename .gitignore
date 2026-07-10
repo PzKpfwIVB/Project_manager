@@ -6,3 +6,5 @@ __pycache__/
 *.pyc
 file_storage/
 dummy_files/
+build/
+task_manager_2026.egg-info/
